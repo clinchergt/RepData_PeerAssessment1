@@ -23,13 +23,19 @@ actData[, stepsDay := sum(steps, na.rm = T), by=date]
 
 library(ggplot2)
 
-ggplot(actData, aes(x = date, y = stepsDay)) +
+ggplot(actData[, mean(stepsDay), by=date], aes(x = date, y = V1)) +
   geom_bar(stat = "identity") +
   labs(title="Steps by date",x="Date", y="Steps")
 ```
 
 
 ## What is the average daily activity pattern?
+
+```{r}
+# Code used to get the data below
+# mean(actData[, mean(stepsDay), by=date]$V1)
+#median(actData[, mean(stepsDay), by=date]$V1)
+```
 
 The mean steps taken each day is **`r mean(actData[, mean(stepsDay), by=date]$V1)`** and the
 median steps taken is **`r median(actData[, mean(stepsDay), by=date]$V1)`**.
@@ -83,12 +89,13 @@ Here we plot the difference between activity patterns during weekdays and weeken
 actData[, isWeekend := weekdays(date) == "Sunday" |
                       weekdays(date) == "Saturday"]
 
-avgIntWeek <- actData[, .(mean(stepsInterval), factor(isWeekend)), by=interval]
-levels(avgIntWeek$V2) <- c("Weekday", "Weekend")
+avgIntWeek <- actData[, mean(steps), by=.(isWeekend, interval)]
+avgIntWeek[, isWeekend := factor(isWeekend)]
+levels(avgIntWeek$isWeekend) <- c("Weekday", "Weekend")
 
 ggplot(avgIntWeek, aes(x = interval, y = V1)) +
-  geom_bar(stat = "identity") +
-  facet_grid(. ~ factor(V2)) +
+  geom_line(stat = "identity") +
+  facet_grid(. ~ isWeekend) +
   labs(title="Steps by interval after imputing data",x="Interval", y="Steps")
 ```
 
