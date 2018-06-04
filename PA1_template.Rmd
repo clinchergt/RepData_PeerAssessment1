@@ -7,19 +7,91 @@ output:
 
 
 ## Loading and preprocessing the data
+```{r}
+library(data.table)
+# Unzip data if needed
+# unzip("activity.zip")
 
-
+actData <- fread("activity.csv")
+actData[, date := as.Date(date)]
+```
 
 ## What is mean total number of steps taken per day?
+```{r}
+# Get total steps per day
+actData[, stepsDay := sum(steps, na.rm = T), by=date]
 
+library(ggplot2)
+
+ggplot(actData, aes(x = date, y = stepsDay)) +
+  geom_bar(stat = "identity") +
+  labs(title="Steps by date",x="Date", y="Steps")
+```
 
 
 ## What is the average daily activity pattern?
 
+The mean steps taken each day is **`r mean(actData[, mean(stepsDay), by=date]$V1)`** and the
+median steps taken is **`r median(actData[, mean(stepsDay), by=date]$V1)`**.
 
+
+#### Average steps taken per day
+
+```{r}
+ggplot(actData[, mean(stepsDay), by=date], aes(x = date, y = V1)) +
+  geom_line() +
+  labs(title="Average steps taken", x="Date", y="Steps")
+```
+
+```{r}
+# Get mean for each interval and get descending order
+orderedIntervals <- actData[, mean(steps, na.rm=T), by=interval][order(-V1),]
+```
+
+The interval with the most steps on average is interval \#`r orderedIntervals[1]$interval` with `r orderedIntervals[1]$V1` steps. The following graph shows the distribution:
+
+```{r}
+ggplot(orderedIntervals, aes(x = interval, y = V1)) +
+  geom_line() +
+  labs(title="Average steps taken", x="Interval", y="Steps")
+```
 
 ## Imputing missing values
 
+You can impute values by replacing them by the mean of that specific interval across the data.
 
+```{r}
+# Impute values by the mean
+actData[, stepsInterval := mean(steps, na.rm=T), by=interval]
+actData[is.na(steps), steps := as.integer(stepsInterval)]
+
+# Graph histogram after imputing values
+# Get total steps per day
+actData[, stepsDay := NULL]
+actData[, stepsDay := sum(steps, na.rm = T), by=date]
+
+ggplot(actData, aes(x = date, y = stepsDay)) +
+  geom_bar(stat = "identity") +
+  labs(title="Steps by date after imputing data",x="Date", y="Steps")
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Here we plot the difference between activity patterns during weekdays and weekends.
+
+```{r}
+actData[, isWeekend := weekdays(date) == "Sunday" |
+                      weekdays(date) == "Saturday"]
+
+avgIntWeek <- actData[, .(mean(stepsInterval), factor(isWeekend)), by=interval]
+levels(avgIntWeek$V2) <- c("Weekday", "Weekend")
+
+ggplot(avgIntWeek, aes(x = interval, y = V1)) +
+  geom_bar(stat = "identity") +
+  facet_grid(. ~ factor(V2)) +
+  labs(title="Steps by interval after imputing data",x="Interval", y="Steps")
+```
+
+We can see that there's a clear difference between activity levels.
+
+
