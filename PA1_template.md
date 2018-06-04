@@ -61,9 +61,12 @@ ggplot(actData[, mean(stepsDay), by=date], aes(x = date, y = V1)) +
 ```r
 # Get mean for each interval and get descending order
 orderedIntervals <- actData[, mean(steps, na.rm=T), by=interval][order(-V1),]
+
+# orderedIntervals[1]$interval
+# orderedIntervals[1]$V1
 ```
 
-The interval with the most steps on average is interval \#835 with 206.1698113 steps. The following graph shows the distribution:
+The interval with the most steps on average is interval **\#835** with **206.1698113** steps. The following graph shows the distribution:
 
 
 ```r
@@ -118,5 +121,3 @@ ggplot(avgIntWeek, aes(x = interval, y = V1)) +
 ![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 We can see that there's a clear difference between activity levels.
-
-
