@@ -25,9 +25,9 @@ actData[, stepsDay := sum(steps, na.rm = T), by=date]
 
 library(ggplot2)
 
-ggplot(actData[, mean(stepsDay), by=date], aes(x = date, y = V1)) +
-  geom_bar(stat = "identity") +
-  labs(title="Steps by date",x="Date", y="Steps")
+ggplot(actData[, mean(stepsDay), by=date], aes(x = V1)) +
+  geom_histogram(bins = 15) +
+  labs(title="Steps by date",x="Steps", y="Frequency")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
@@ -92,9 +92,9 @@ actData[is.na(steps), steps := as.integer(stepsInterval)]
 actData[, stepsDay := NULL]
 actData[, stepsDay := sum(steps, na.rm = T), by=date]
 
-ggplot(actData, aes(x = date, y = stepsDay)) +
-  geom_bar(stat = "identity") +
-  labs(title="Steps by date after imputing data",x="Date", y="Steps")
+ggplot(actData[, mean(stepsDay), by=date], aes(x = V1)) +
+  geom_histogram(bins = 15) +
+  labs(title="Steps by date",x="Steps", y="Frequency")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
